@@ -1,0 +1,4 @@
+https://github.com/tj/commander.js/issues/372
+
+This folder is a workaround for the commander bug above.
+It can be removed on the next update of commander supposedly.

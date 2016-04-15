@@ -1,0 +1,21 @@
+{
+  "name": "gogo",
+  "version": "1.0.0",
+  "description": "Easy command line utility using Javascript and Node",
+  "bin": {
+    "gg": "gg.bat"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/he3/gogo.git"
+  },
+  "author": "Henry",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/he3/gogo/issues"
+  },
+  "homepage": "https://github.com/he3/gogo#readme",
+  "dependencies": {
+    "commander": "2.9.0"
+  }
+}

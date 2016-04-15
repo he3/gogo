@@ -1,0 +1,9 @@
+var program = require('commander');
+
+program
+  .version('0.0.1')
+  .usage('<value>')
+  .action(function(value){
+      console.log(value);
+  })
+  .parse(process.argv);
