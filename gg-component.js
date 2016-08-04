@@ -22,7 +22,7 @@ function createComponent(name){
     }
     fs.writeFile(
         angularRoot + name + "/" + name + "Component.js",
-        `(function(){
+        `(function() {
             "use strict";
             
             angular
@@ -33,11 +33,11 @@ function createComponent(name){
                 });
 
             function ${name}Controller() {
-                const ctrl = this;
+                const $ctrl = this;
             }
             ${name}Controller.$inject = [];
             
-        })()`, 
+        })();`, 
         function(error){
            if(error) console.log("error creating component", error); 
         });
