@@ -41,7 +41,6 @@ function createComponent(path, name) {
     var templateUrl = path + name + ".html";
 
     fs.writeFile(
-<<<<<<< HEAD
         path + name + "Component.js",
         `(function(){
     "use strict";
@@ -61,27 +60,6 @@ function createComponent(path, name) {
 })()`,
         function (error) {
             if (error) console.log("error creating component", error);
-=======
-        angularRoot + name + "/" + name + "Component.js",
-        `(function() {
-            "use strict";
-            
-            angular
-                .module("app")
-                .component("${name}", {
-                    templateUrl: "${angularRoot}${name}/${name}.html",
-                    controller: ${name}Controller
-                });
-
-            function ${name}Controller() {
-                const $ctrl = this;
-            }
-            ${name}Controller.$inject = [];
-            
-        })();`, 
-        function(error){
-           if(error) console.log("error creating component", error); 
->>>>>>> 4271dcf6a48b631f8bca421d24ecc18d9fd8ddc2
         });
 }
 
