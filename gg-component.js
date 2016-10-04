@@ -53,7 +53,7 @@ function createComponent(path, name) {
         });
 
     function controller() {
-        const ctrl = this;
+        const $ctrl = this;
     }
     controller.$inject = [];
     
