@@ -23,7 +23,8 @@ program
             createTemplate(folderPath, name);
             createComponent(folderPath, name);
         } else {
-            createComponent(appRoot, name);
+            createTemplate("", name);
+            createComponent("", name);
         }
 
         if (program.route){
