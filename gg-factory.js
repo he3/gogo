@@ -47,7 +47,7 @@ function createFactory(path, name) {
             getAll${name.upperFirst()}s: () => $http.get("")
         };
     }
-    controller.$inject = ["$http"];
+    factory.$inject = ["$http"];
     
 })()`,
         function (error) {
