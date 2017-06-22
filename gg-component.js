@@ -25,16 +25,19 @@ program
         const fullDirPath = process.cwd() + (program.folder ? "\\" + name : "");
         //console.log("fullDirPath:" + fullDirPath);
         
+        const fullPackageDirPath = pathTo(fullDirPath, "package.json");
+        //console.log("fullPackageDirPath:" + fullPackageDirPath);
+        
         const fullAppDirPath = pathTo(fullDirPath, "app.js");
         //console.log("fullAppDirPath:" + fullAppDirPath);
         
         const fullAppPath = fullAppDirPath + "\\app.js";
         //console.log("fullAppPath:" + fullAppPath);
         
-        let pathBackToApp = fullDirPath.replace(fullAppDirPath, "");
-        if(pathBackToApp.startsWith("\\"))
-            pathBackToApp = pathBackToApp.substring(1);
-        //console.log("pathBackToApp:" + pathBackToApp);
+        let pathBackToRoot = fullDirPath.replace(fullPackageDirPath, "");
+        if(pathBackToRoot.startsWith("\\"))
+            pathBackToRoot = pathBackToRoot.substring(1);
+        //console.log("pathBackToRoot:" + pathBackToRoot);
 
         const componentPath = (program.folder ? name + "\\" : "") + name + ".component.js";
         //console.log("componentPath:" + componentPath);
@@ -42,7 +45,7 @@ program
         const templatePath = (program.folder ? name + "\\" : "") + name + ".html";
         //console.log("templatePath:" + templatePath);
        
-        let templateUrl = pathBackToApp + "\\" + name + ".html";
+        let templateUrl = pathBackToRoot.replace(/\\/g, "/") + "/" + name + ".html";
         if(templateUrl.startsWith("\\"))
             templateUrl = templateUrl.substring(1);
         console.log("templateUrl:" + templateUrl);
