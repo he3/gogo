@@ -6,5 +6,6 @@ program
   .command("component <name>", "Creates an Angular component.")
   .command("factory <name>", "Creates an Angular factory.")
   .command("service <name>", "Creates an Angular service.")
+  .command("modal <name>", "Creates an Angular modal component.")
   .parse(process.argv);
   
