@@ -88,7 +88,7 @@ function createComponent(componentPath, name, templateUrl) {
 
         $ctrl.$onInit = () => {
 
-        }
+        };
     }
     controller.$inject = [];
     
