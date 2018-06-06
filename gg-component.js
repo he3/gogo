@@ -85,6 +85,10 @@ function createComponent(componentPath, name, templateUrl) {
 
     function controller() {
         const $ctrl = this;
+
+        $ctrl.$onInit = () => {
+
+        }
     }
     controller.$inject = [];
     
