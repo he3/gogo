@@ -6,11 +6,16 @@ String.prototype.toDash = function () {
     return this.replace(/([A-Z])/g, function ($1) { return "-" + $1.toLowerCase(); });
 };
 
+String.prototype.upperFirst = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+};
+
 program
     .version('0.0.1')
     .usage("[options] <name>")
     .option("-f, --folder", "Generate a folder with component and html template.")
     .option("-r, --route", "Add component route to app.js.")
+    .option("-6, --es6", "Generate component in ES6.")
     .action(function (name) {
         console.log('Generating:');
 
@@ -51,7 +56,12 @@ program
         console.log("templateUrl:" + templateUrl);
 
         createTemplate(templatePath, name);
-        createComponent(componentPath, name, templateUrl);
+
+        if (program.es6) {
+            createES6Component(componentPath, name, templateUrl);
+        } else {
+            createComponent(componentPath, name, templateUrl);
+        }
 
         if (program.route) {
             createComponentRoute(fullAppPath, name);
@@ -63,7 +73,7 @@ function pathTo(testPath, fileName) {
     if (fs.existsSync(`${testPath}\\${fileName}`))
         return testPath;
     const newPath = testPath.substring(0, testPath.lastIndexOf("\\"));
-    if (newPath === "\\")
+    if (newPath === "\\" || newPath === "")
         throw ("app.js not found.");
     return pathTo(newPath, fileName);
 }
@@ -92,7 +102,35 @@ function createComponent(componentPath, name, templateUrl) {
     }
     controller.$inject = [];
     
-})()`,
+})();`,
+        function (error) {
+            if (error) console.log("error creating component", error);
+        });
+}
+
+function createES6Component(componentPath, name, templateUrl) {
+    console.log('  - ' + componentPath);
+
+    fs.writeFile(
+        componentPath,
+`class ${name.upperFirst()}Controller {
+    static $inject = ["stToastFactory"];
+
+    constructor(stToastFactory) {
+        this.toast = stToastFactory;
+    }
+
+    $onInit() {
+    }
+}
+
+angular
+    .module("app")
+    .component("${name}", { // ${name.toDash()}
+        templateUrl: "${templateUrl}",
+        controller: ${name.upperFirst()}Controller
+    });
+`,
         function (error) {
             if (error) console.log("error creating component", error);
         });

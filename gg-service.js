@@ -16,6 +16,7 @@ String.prototype.lowerFirst = function() {
 program
     .version('0.0.1')
     .usage("[options] <name>")
+    .option("-6, --es6", "Generate service in ES6.")
     .action(function (name) {
         console.log('Generating:');
         const appRoot = "src/app/";
@@ -23,7 +24,11 @@ program
         name = name.replace("Service","");
         name = name.lowerFirst();
 
-        createService("", name);
+        if (program.es6) {
+            createES6Service("", name);
+        } else {
+            createService("", name);
+        }
     })
     .parse(process.argv);
 
@@ -47,7 +52,39 @@ function createService(path, name) {
     }
     service.$inject = ["$http"];
     
-})()`,
+})();`,
+        function (error) {
+            if (error) console.log("error creating factory", error);
+        });
+}
+
+function createES6Service(path, name) {
+    console.log('  - ' + path + name + "Service.js");
+
+    fs.writeFile(
+        path + name + "Service.js",
+`class ${name.upperFirst()}Service {
+    static $inject = ["$http"];
+
+    constructor($http) {
+        this.$http = $http;
+
+        this.baseApiUrl = "api/v1/";
+    }
+
+    search() {
+        var url = this.baseApiUrl + "search";
+        return this.$http.get(url, {
+            params: {
+            }
+        }).then(response => response.data);
+    }
+}
+
+angular
+    .module("app")
+    .service("${name}Service", ${name.upperFirst()}Service);
+`,
         function (error) {
             if (error) console.log("error creating factory", error);
         });
