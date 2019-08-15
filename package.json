@@ -1,6 +1,6 @@
 {
   "name": "gogo",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Easy command line utility using Javascript and Node",
   "bin": {
     "gg": "gg.bat"

@@ -74,7 +74,7 @@ function pathTo(testPath, fileName) {
         return testPath;
     const newPath = testPath.substring(0, testPath.lastIndexOf("\\"));
     if (newPath === "\\" || newPath === "")
-        throw ("app.js not found.");
+        throw fileName + " not found in " + testPath;
     return pathTo(newPath, fileName);
 }
 
