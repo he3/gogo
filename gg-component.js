@@ -114,10 +114,10 @@ function createES6Component(componentPath, name, templateUrl) {
     fs.writeFile(
         componentPath,
 `class ${name.upperFirst()}Controller {
-    static $inject = ["stToastFactory"];
+    static $inject = ["stToast"];
 
-    constructor(stToastFactory) {
-        this.toast = stToastFactory;
+    constructor(stToast) {
+        this.toast = stToast;
     }
 
     $onInit() {
