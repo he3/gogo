@@ -29,35 +29,32 @@ program
 
         // This is hideous...
         const fullDirPath = process.cwd() + (program.folder ? "\\" + name : "");
-        console.log("fullDirPath:" + fullDirPath);
+        //console.log("fullDirPath:" + fullDirPath);
         
         const fullPackageDirPath = pathTo(fullDirPath, "package.json");
-        console.log("fullPackageDirPath:" + fullPackageDirPath);
+        //console.log("fullPackageDirPath:" + fullPackageDirPath);
         
         const fullAppDirPath = pathTo(fullDirPath, "app.js");
-        console.log("fullAppDirPath:" + fullAppDirPath);
+        //console.log("fullAppDirPath:" + fullAppDirPath);
         
         const fullAppPath = fullAppDirPath + "\\app.js";
-        console.log("fullAppPath:" + fullAppPath);
+        //console.log("fullAppPath:" + fullAppPath);
         
         let pathBackToRoot = fullDirPath.replace(fullPackageDirPath, "");
         if(pathBackToRoot.startsWith("\\"))
             pathBackToRoot = pathBackToRoot.substring(1);
-        console.log("pathBackToRoot:" + pathBackToRoot);
+        //console.log("pathBackToRoot:" + pathBackToRoot);
 
         const componentPath = (program.folder ? name + "\\" : "") + name + ".component.js";
-        console.log("componentPath:" + componentPath);
+        //console.log("componentPath:" + componentPath);
 
         const templatePath = (program.folder ? name + "\\" : "") + name + ".html";
-        console.log("templatePath:" + templatePath);
+        //console.log("templatePath:" + templatePath);
        
-        const projectFilePath = fullPackageDirPath + "\\" + fs.readdirSync(fullPackageDirPath).find(fileName => fileName.match(/.*\.csproj/ig));
-        console.log(`projectFilePath: ${projectFilePath}`);
-
         let templateUrl = pathBackToRoot.replace(/\\/g, "/") + "/" + name + ".html";
         if(templateUrl.startsWith("\\"))
             templateUrl = templateUrl.substring(1);
-        console.log("templateUrl:" + templateUrl);
+        //console.log("templateUrl:" + templateUrl);
 
         createTemplate(templatePath, name);
 
@@ -72,6 +69,8 @@ program
         }
 
         if (program.project) {
+            const projectFilePath = fullPackageDirPath + "\\" + fs.readdirSync(fullPackageDirPath).find(fileName => fileName.match(/.*\.csproj/ig));
+            //console.log(`projectFilePath: ${projectFilePath}`);
             addFilesToProject(projectFilePath, fullDirPath, pathBackToRoot);
         }
     })
