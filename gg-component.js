@@ -71,7 +71,7 @@ program
         if (program.project) {
             const projectFilePath = fullPackageDirPath + "\\" + fs.readdirSync(fullPackageDirPath).find(fileName => fileName.match(/.*\.csproj/ig));
             //console.log(`projectFilePath: ${projectFilePath}`);
-            addFilesToProject(projectFilePath, fullDirPath, pathBackToRoot);
+            addFilesToProject(projectFilePath, [templatePath, componentPath], pathBackToRoot);
         }
     })
     .parse(process.argv);
@@ -173,16 +173,15 @@ function createComponentRoute(fullAppPath, name) {
 
 }
 
-function addFilesToProject(projectFilePath, fullDirPath, pathBackToRoot) {
+function addFilesToProject(projectFilePath, filesToAdd, pathBackToRoot) {
     console.log('  - Add files to project');
-    const filesToAdd = fs.readdirSync(fullDirPath);
     fs.readFile(projectFilePath, function (err, data) {
         if (err) throw err;
         const lines = data.toString().split("\r\n");
         const lineIdx = lines.findIndex(line => line.match(/package\.json/ig));
         if (lineIdx >= 0) {
             filesToAdd.forEach(fileToAdd => {
-                lines.splice(lineIdx, 0, `    <None Include="${pathBackToRoot}\\${fileToAdd}" />`);
+                lines.splice(lineIdx, 0, `    <None Include="${pathBackToRoot}\\${path.basename(fileToAdd)}" />`);
             });
         }
         var file = fs.createWriteStream(projectFilePath);
