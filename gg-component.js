@@ -16,6 +16,7 @@ program
     .option("-f, --folder", "Generate a folder with component and html template.")
     .option("-r, --route", "Add component route to app.js.")
     .option("-6, --es6", "Generate component in ES6.")
+    .option("-p, --project", "Add generated files to .csproj file.")
     .action(function (name) {
         console.log('Generating:');
 
@@ -28,28 +29,31 @@ program
 
         // This is hideous...
         const fullDirPath = process.cwd() + (program.folder ? "\\" + name : "");
-        //console.log("fullDirPath:" + fullDirPath);
+        console.log("fullDirPath:" + fullDirPath);
         
         const fullPackageDirPath = pathTo(fullDirPath, "package.json");
-        //console.log("fullPackageDirPath:" + fullPackageDirPath);
+        console.log("fullPackageDirPath:" + fullPackageDirPath);
         
         const fullAppDirPath = pathTo(fullDirPath, "app.js");
-        //console.log("fullAppDirPath:" + fullAppDirPath);
+        console.log("fullAppDirPath:" + fullAppDirPath);
         
         const fullAppPath = fullAppDirPath + "\\app.js";
-        //console.log("fullAppPath:" + fullAppPath);
+        console.log("fullAppPath:" + fullAppPath);
         
         let pathBackToRoot = fullDirPath.replace(fullPackageDirPath, "");
         if(pathBackToRoot.startsWith("\\"))
             pathBackToRoot = pathBackToRoot.substring(1);
-        //console.log("pathBackToRoot:" + pathBackToRoot);
+        console.log("pathBackToRoot:" + pathBackToRoot);
 
         const componentPath = (program.folder ? name + "\\" : "") + name + ".component.js";
-        //console.log("componentPath:" + componentPath);
+        console.log("componentPath:" + componentPath);
 
         const templatePath = (program.folder ? name + "\\" : "") + name + ".html";
-        //console.log("templatePath:" + templatePath);
+        console.log("templatePath:" + templatePath);
        
+        const projectFilePath = fullPackageDirPath + "\\" + fs.readdirSync(fullPackageDirPath).find(fileName => fileName.match(/.*\.csproj/ig));
+        console.log(`projectFilePath: ${projectFilePath}`);
+
         let templateUrl = pathBackToRoot.replace(/\\/g, "/") + "/" + name + ".html";
         if(templateUrl.startsWith("\\"))
             templateUrl = templateUrl.substring(1);
@@ -65,6 +69,10 @@ program
 
         if (program.route) {
             createComponentRoute(fullAppPath, name);
+        }
+
+        if (program.project) {
+            addFilesToProject(projectFilePath, fullDirPath, pathBackToRoot);
         }
     })
     .parse(process.argv);
@@ -166,3 +174,22 @@ function createComponentRoute(fullAppPath, name) {
 
 }
 
+function addFilesToProject(projectFilePath, fullDirPath, pathBackToRoot) {
+    console.log('  - Add files to project');
+    const filesToAdd = fs.readdirSync(fullDirPath);
+    fs.readFile(projectFilePath, function (err, data) {
+        if (err) throw err;
+        const lines = data.toString().split("\r\n");
+        const lineIdx = lines.findIndex(line => line.match(/package\.json/ig));
+        if (lineIdx >= 0) {
+            filesToAdd.forEach(fileToAdd => {
+                lines.splice(lineIdx, 0, `    <None Include="${pathBackToRoot}\\${fileToAdd}" />`);
+            });
+        }
+        var file = fs.createWriteStream(projectFilePath);
+        file.on('error', function (err) { console.log("error writing to " + projectFilePath, err); });
+        lines.forEach(function (v) { file.write(v + '\r\n'); });
+        file.end();
+    });
+
+}
