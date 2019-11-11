@@ -6,45 +6,53 @@ String.prototype.toDash = function () {
     return this.replace(/([A-Z])/g, function ($1) { return "-" + $1.toLowerCase(); });
 };
 
-String.prototype.upperFirst = function() {
+String.prototype.upperFirst = function () {
     return this.charAt(0).toUpperCase() + this.slice(1);
 };
 
 program
     .version('0.0.1')
     .usage("[options] <name>")
-    .option("-6, --es6", "Generate component in ES6.")
-    .option("-p, --project", "Add generated files to .csproj file.")
+    .option("-f, --nofolder", "Do not create a folder for component and html template.")
+    .option("-6, --noes6", "Do not generate component in ES6.")
+    .option("-p, --noproject", "Do not add generated files to .csproj file.")
+    .option("-v, --verbose", "Verbose logging.")
     .action(function (name) {
         console.log('Generating:');
 
-        console.log('  - ' + name);
-        if (!fs.existsSync(name)) {
-            fs.mkdirSync(name);
+        program.folder = !program.nofolder;
+        program.es6 = !program.noes6;
+        program.project = !program.noproject;
+
+        if (program.folder) {
+            console.log('  - ' + name);
+            if (!fs.existsSync(name)) {
+                fs.mkdirSync(name);
+            }
         }
 
         // This is hideous...
-        const fullDirPath = process.cwd() + "\\" + name;
-        //console.log("fullDirPath:" + fullDirPath);
-        
+        const fullDirPath = process.cwd() + (program.folder ? "\\" + name : "");
+        if (program.verbose) console.log("fullDirPath:" + fullDirPath);
+
         const fullPackageDirPath = pathTo(fullDirPath, "package.json");
-        //console.log("fullPackageDirPath:" + fullPackageDirPath);
-        
+        if (program.verbose) console.log("fullPackageDirPath:" + fullPackageDirPath);
+
         let pathBackToRoot = fullDirPath.replace(fullPackageDirPath, "");
-        if(pathBackToRoot.startsWith("\\"))
+        if (pathBackToRoot.startsWith("\\"))
             pathBackToRoot = pathBackToRoot.substring(1);
-        //console.log("pathBackToRoot:" + pathBackToRoot);
+        if (program.verbose) console.log("pathBackToRoot:" + pathBackToRoot);
 
-        const componentPath = name + "\\" + name + ".component.js";
-        //console.log("componentPath:" + componentPath);
+        const componentPath = (program.folder ? name + "\\" : "") + name + ".component.js";
+        if (program.verbose) console.log("componentPath:" + componentPath);
 
-        const templatePath = name + "\\" + name + ".html";
-        //console.log("templatePath:" + templatePath);
+        const templatePath = (program.folder ? name + "\\" : "") + name + ".html";
+        if (program.verbose) console.log("templatePath:" + templatePath);
 
         let templateUrl = pathBackToRoot.replace(/\\/g, "/") + "/" + name + ".html";
-        if(templateUrl.startsWith("\\"))
+        if (templateUrl.startsWith("\\"))
             templateUrl = templateUrl.substring(1);
-        //console.log("templateUrl:" + templateUrl);
+        if (program.verbose) console.log("templateUrl:" + templateUrl);
 
         createTemplate(templatePath, name);
 
@@ -56,7 +64,10 @@ program
 
         if (program.project) {
             const projectFilePath = fullPackageDirPath + "\\" + fs.readdirSync(fullPackageDirPath).find(fileName => fileName.match(/.*\.csproj/ig));
-            //console.log(`projectFilePath: ${projectFilePath}`);
+            if (!projectFilePath)
+                throw `Couldn't locate .csproj file in ${fullPackageDirPath}`;
+
+            if (program.verbose) console.log(`projectFilePath: ${projectFilePath}`);
             addFilesToProject(projectFilePath, [templatePath, componentPath], pathBackToRoot);
         }
     })
@@ -66,8 +77,8 @@ function pathTo(testPath, fileName) {
     if (fs.existsSync(`${testPath}\\${fileName}`))
         return testPath;
     const newPath = testPath.substring(0, testPath.lastIndexOf("\\"));
-    if (newPath === "\\")
-        throw ("app.js not found.");
+    if (newPath === "\\" || newPath === "")
+        throw fileName + " not found in " + testPath;
     return pathTo(newPath, fileName);
 }
 
@@ -133,7 +144,7 @@ function createES6Component(componentPath, name, templateUrl) {
 
     fs.writeFile(
         componentPath,
-`class ${name.upperFirst()}Controller {
+        `class ${name.upperFirst()}Controller {
     static $inject = ["stToast"];
 
     constructor(stToast) {
@@ -187,7 +198,7 @@ function createTemplate(templatePath, name) {
     console.log('  - ' + templatePath);
     fs.writeFile(
         templatePath,
-`
+        `
 <div class="modal-header">
     <h3 class="modal-title text-center">${name}</h3>
 </div>
@@ -213,11 +224,16 @@ function addFilesToProject(projectFilePath, filesToAdd, pathBackToRoot) {
             filesToAdd.forEach(fileToAdd => {
                 lines.splice(lineIdx, 0, `    <None Include="${pathBackToRoot}\\${path.basename(fileToAdd)}" />`);
             });
+            writeFile(projectFilePath, lines);
+        } else {
+            throw `Couldn't find reference to package.json in ${projectFilePath}`;
         }
-        var file = fs.createWriteStream(projectFilePath);
-        file.on('error', function (err) { console.log("error writing to " + projectFilePath, err); });
-        lines.forEach(function (v) { file.write(v + '\r\n'); });
-        file.end();
     });
+}
 
+function writeFile(filePath, lines) {
+    var file = fs.createWriteStream(filePath);
+    file.on('error', function (err) { console.log("error writing to " + filePath, err); });
+    lines.forEach(function (v) { file.write(v + '\r\n'); });
+    file.end();
 }
